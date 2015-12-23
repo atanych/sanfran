@@ -2,7 +2,7 @@
 SYNC_INTERVAL = 15000
 
 # expression for url's validation
-# todo my expession isn't good :( i
+# todo my expession isn't good :(
 EXPRESSION = /^((http|ftp|https):\/{2})?(www.)?([-a-zA-Z0-9@%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b)(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?$/gi
 $(->
 
