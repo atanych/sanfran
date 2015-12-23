@@ -14,8 +14,10 @@
  *= require_self
  */
 .content {
+
   * {
     font-family: "proxima-nova",Helvetica,Arial,sans-serif;
+    color: #333;
   }
 
   width: 500px;
@@ -41,5 +43,10 @@
   input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, textarea:focus, .text-field:focus, .text-area:focus, select[multiple]:focus {
     border-color: #4477bd;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.2) inset;
+  }
+  font-size: 13px;
+  #url-title {
+    margin-top: 20px;
+
   }
 }
