@@ -19,7 +19,6 @@ $(->
   # Syncs client data with server
   #
   sync = () ->
-    console.log('sync', unsync_urls)
     $.ajax
       method: 'POST'
       url: 'welcome/sync'
@@ -39,6 +38,9 @@ $(->
         add_url(raw_url)
         $(this).val('')
 
+  #
+  # for sync with server
+  #
   window.setInterval(->
     sync(unsync_urls)
   , SYNC_INTERVAL)
