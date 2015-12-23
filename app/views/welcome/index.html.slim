@@ -1,6 +1,7 @@
 div.content
-
   input#url-input type="text" placeholder="your url"
   div#url-title
     strong Website URL:
   div#url-container
+    - @urls.each do |url|
+      div data-id="#{url.id}" = url.name
