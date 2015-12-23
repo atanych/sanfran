@@ -1,7 +1,15 @@
+# interval for sync with server
 SYNC_INTERVAL = 15000
+
 # expression for url's validation
-EXPRESSION = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}(\.[a-z]{2,4}\b)(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi
+# todo my expession isn't good :( i
+EXPRESSION = /^((http|ftp|https):\/{2})?(www.)?([-a-zA-Z0-9@%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b)(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?$/gi
 $(->
+
+  # -----------------------------------------------
+  # METHODS
+  # ------------------------------------------------
+
   #
   # Adds url
   #
@@ -14,14 +22,15 @@ $(->
       throw new Error('duplicate')
 
   #
-  # Validates url
+  # Validates and parse row url (returns domain name)
   #
-  validate = (url_name) ->
-    regexp = EXPRESSION
-    console.log(regexp.exec(url_name))
-    a = url_name.match(EXPRESSION)
-    console.log(a)
-    return true
+  validate_and_parse = (url_name) ->
+    regexp = new RegExp(EXPRESSION)
+    matches = regexp.exec(url_name)
+    if matches && matches[4]
+      return matches[4]
+    else
+      return false
 
   #
   # Syncs client data with server
@@ -44,21 +53,25 @@ $(->
       urls.unshift($.trim($(v).text()))
 
 
+  # -----------------------------------------------
+  # INIT
+  # ------------------------------------------------
   urls = []
   unsync_urls = []
   do prepare
+
+  # -----------------------------------------------
+  # HANDLERS
+  # ------------------------------------------------
   $('#url-input').on 'keydown', (e) ->
     if e.keyCode == 13
       raw_url = $.trim($(this).val())
-      if validate raw_url
-        add_url(raw_url)
+      if url = validate_and_parse raw_url
+        add_url(url)
         $(this).val('')
       else
         console.log('novalid')
 
-  #
-  # for sync with server
-  #
   window.setInterval(->
     sync(unsync_urls)
   , SYNC_INTERVAL)
