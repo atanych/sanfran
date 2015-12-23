@@ -1,7 +1,7 @@
 SYNC_INTERVAL = 15000
-
+# expression for url's validation
+EXPRESSION = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi
 $(->
-
   #
   # Adds url
   #
@@ -13,7 +13,7 @@ $(->
   # Validates url
   #
   validate = (url_name) ->
-    return true
+    return url_name.match(EXPRESSION)
 
   #
   # Syncs client data with server
@@ -26,7 +26,7 @@ $(->
         urls: unsync_urls
       success: (res) ->
         if res.status == 'ok'
-          unsync_urls.splice(0,unsync_urls.length)
+          unsync_urls.splice(0, unsync_urls.length)
 
 
   unsync_urls = []
@@ -37,6 +37,8 @@ $(->
       if validate raw_url
         add_url(raw_url)
         $(this).val('')
+      else
+        console.log('novalid')
 
   #
   # for sync with server
