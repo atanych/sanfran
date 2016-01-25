@@ -1,79 +1,101 @@
-# interval for sync with server
-SYNC_INTERVAL = 15000
+class UrlHandler
 
-# expression for url's validation
-# todo my expession isn't good :(
-EXPRESSION = /^((http|ftp|https):\/{2})?(www.)?([-a-zA-Z0-9@%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b)(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?$/gi
-$(->
+  SYNC_INTERVAL: 15000 # interval for sync with server
 
-  # -----------------------------------------------
-  # METHODS
-  # ------------------------------------------------
+  KEYBOARD_ENTER_CODE: 13 # code for button 'Enter'
+
+  SYNC_URL: 'welcome/sync' # url to syncronize
+
+  # expression for url's validation
+  # todo my expession isn't good :(
+  EXPRESSION: ///^
+  ((http|ftp|https):\/{2})? # protocol
+  (www.)? # www
+  ([-a-zA-Z]{1}[-a-zA-Z0-9@%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b) # domain
+  (\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)? # uri with query
+  $ ///i
+
+
+  constructor: () ->
+    @urls = []
+    @unsync_urls = []
+    do @handlers
+    do @collect
 
   #
-  # Adds url
+  # Set handlers for events and timers
   #
-  add_url = (url_name) ->
-    if $.inArray(url_name, urls) == -1
-      urls.push url_name
-      unsync_urls.push url_name
-      $('#url-container').prepend('<div>' + url_name + '</div>')
+  handlers: ->
+    $('#url-input').on 'keydown', (e) =>
+      if e.keyCode == @KEYBOARD_ENTER_CODE
+        raw_url = $.trim($(e.target).val())
+        if @add(raw_url)
+          $(e.target).val('')
+        else
+          throw new Error("url #{raw_url} no valid");
+
+    window.setInterval(=>
+      do @sync
+    , @SYNC_INTERVAL)
+
+
+  #
+  # Collect data from server
+  #
+  collect: ->
+    $('#url-container div').each (a, v) =>
+      @urls.unshift($.trim($(v).text()))
+
+  #
+  # Add url
+  #
+  # @param [String] url
+  #
+  add: (url) ->
+    if @validate(url)
+      url = @parse(url)
+      @urls.push url
+      @unsync_urls.push url
+      $('#url-container').prepend('<div>' + url + '</div>')
+      true
     else
-      throw new Error('duplicate')
+      false
 
   #
-  # Validates and parse row url (returns domain name)
+  # Validate url
   #
-  validate_and_parse = (url_name) ->
-    regexp = new RegExp(EXPRESSION)
-    matches = regexp.exec(url_name)
+  # @param [String] url
+  #
+  validate: (url) ->
+    !!url.match(@EXPRESSION)
+
+  #
+  # Parse row url
+  #
+  # @param [String] url
+  #
+  # @return [String] domain name
+  #
+  parse: (url) ->
+    matches = url.match(@EXPRESSION)
     if matches && matches[4]
-      return matches[4]
-    else
-      return false
+      matches[4]
 
   #
-  # Syncs client data with server
+  # Sync client data with server
   #
-  sync = () ->
+  sync: ->
     $.ajax
       method: 'POST'
-      url: 'welcome/sync'
+      url: @SYNC_URL
       data:
-        urls: unsync_urls
-      success: (res) ->
+        urls: @unsync_urls
+      success: (res) =>
         if res.status == 'ok'
-          unsync_urls.splice(0, unsync_urls.length)
-
-  #
-  # Prepares data
-  #
-  prepare = ->
-    $('#url-container div').each (a, v) ->
-      urls.unshift($.trim($(v).text()))
+          @unsync_urls.splice(0, @unsync_urls.length)
 
 
-  # -----------------------------------------------
-  # INIT
-  # ------------------------------------------------
-  urls = []
-  unsync_urls = []
-  do prepare
 
-  # -----------------------------------------------
-  # HANDLERS
-  # ------------------------------------------------
-  $('#url-input').on 'keydown', (e) ->
-    if e.keyCode == 13
-      raw_url = $.trim($(this).val())
-      if url = validate_and_parse raw_url
-        add_url(url)
-        $(this).val('')
-      else
-        console.log('novalid')
-
-  window.setInterval(->
-    sync(unsync_urls)
-  , SYNC_INTERVAL)
+$(->
+  new UrlHandler
 )
-
