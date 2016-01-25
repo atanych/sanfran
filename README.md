@@ -1,6 +1,6 @@
 # MVC/Rails/ajax user interface test (should take maximum 3 hours)
 ## Heroku
-My result: https://rocky-hollows-3143.herokuapp.com
+My result: https://sleepy-lake-48704.herokuapp.com/
 
 ## Directions:
 Please create the following application using Rails 4 and MySQL/PostgreSQL. You can use JQuery as well, if you wish. We’ll be using this to test your development skills.
